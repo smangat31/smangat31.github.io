@@ -1,0 +1,127 @@
+# smangat31.github.io
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+
+<script src="https://d3js.org/d3.v4.js"></script>
+
+
+<div id="my_dataviz"></div>
+
+<script>
+
+
+var margin = {top: 42, right: 40, bottom: 45, left: 70},
+    width = 460 - margin.left - margin.right,
+    height = 450 - margin.top - margin.bottom;
+
+
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+//Read the data
+d3.csv("test.csv", function(data) {
+
+  // Add X axis
+  var x = d3.scaleLinear()
+    .domain([15, 90])
+    .range([ 0, width ]);
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+    // axis title
+    svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", width)
+    .attr("y", height + 40)
+    .text("age");
+  // Add Y axis
+  var y = d3.scaleLinear()
+    .domain([20000, 900000])
+    .range([ height, 0]);
+  svg.append("g")
+    .call(d3.axisLeft(y));
+
+    // y axis title
+    svg.append("text")
+    .attr("text-anchor", "end")
+    .attr("transform", "rotate(-90)")
+    .attr("y", -margin.left+20)
+    .attr("x", -margin.top)
+    .text("Income(thousands)")
+
+  
+
+    svg.append("text")
+        .attr("x", (width / 2))
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")
+        .style("font-size", "30px")
+        .style("text-decoration", "underline")
+        .text("Income and Age Scatterplot");
+
+
+
+  var tooltip = d3.select("#my_dataviz")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "10px")
+
+
+
+  var mouseover = function(d) {
+    tooltip
+      .style("opacity", 1)
+  }
+
+  var mousemove = function(d) {
+    tooltip
+      .html("The age <br> is: " + d.age)
+      .style("left", (d3.mouse(this)[0]+90) + "px")
+      .style("top", (d3.mouse(this)[1]) + "px")
+  }
+
+
+  var mouseleave = function(d) {
+    tooltip
+      .transition()
+      .duration(200)
+      .style("opacity", 0)
+  }
+
+
+
+
+  svg.append('g')
+    .selectAll("dot")
+    .data(data.filter(function(d,i){return i<130}))
+    .enter()
+    .append("circle")
+      .attr("cx", function (d) { return x(d.age); } )
+      .attr("cy", function (d) { return y(d.fnlwgt); } )
+      .attr("r", 7)
+      .style("fill", "#69b3a2")
+      .style("opacity", 0.7)
+      .style("stroke", "blue")
+    .on("mouseover", mouseover )
+    .on("mousemove", mousemove )
+    .on("mouseleave", mouseleave )
+
+})
+
+
+
+
+</script>
+
