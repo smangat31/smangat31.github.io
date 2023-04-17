@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 
-
+<!-- Load d3.js -->
 <script src="https://d3js.org/d3.v4.js"></script>
 
 
@@ -10,10 +10,15 @@
 
 <script>
 
+var svg = d3.select("#my_dataviz")
 
-var margin = {top: 42, right: 40, bottom: 45, left: 70},
+
+
+
+
+var margin = {top: 45, right: 30, bottom: 50, left: 70},
     width = 460 - margin.left - margin.right,
-    height = 450 - margin.top - margin.bottom;
+    height = 400 - margin.top - margin.bottom;
 
 
 var svg = d3.select("#my_dataviz")
@@ -24,7 +29,7 @@ var svg = d3.select("#my_dataviz")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
-//Read the data
+
 d3.csv("test.csv", function(data) {
 
   // Add X axis
@@ -34,21 +39,23 @@ d3.csv("test.csv", function(data) {
   svg.append("g")
     .attr("transform", "translate(0," + height + ")")
     .call(d3.axisBottom(x));
-    // axis title
-    svg.append("text")
-    .attr("class", "x label")
-    .attr("text-anchor", "end")
-    .attr("x", width)
-    .attr("y", height + 40)
-    .text("age");
-  // Add Y axis
+
+
+
+svg.append("text")
+.attr("class", "x label")
+.attr("text-anchor", "end")
+.attr("x", width)
+.attr("y", height + 28)
+.text("age");
+
   var y = d3.scaleLinear()
     .domain([20000, 900000])
     .range([ height, 0]);
   svg.append("g")
     .call(d3.axisLeft(y));
 
-    // y axis title
+
     svg.append("text")
     .attr("text-anchor", "end")
     .attr("transform", "rotate(-90)")
@@ -64,64 +71,77 @@ d3.csv("test.csv", function(data) {
         .attr("text-anchor", "middle")
         .style("font-size", "30px")
         .style("text-decoration", "underline")
-        .text("Income and Age Scatterplot");
+        .text("Income Scatterplot");
 
 
 
-  var tooltip = d3.select("#my_dataviz")
-    .append("div")
-    .style("opacity", 0)
-    .attr("class", "tooltip")
-    .style("background-color", "white")
-    .style("border", "solid")
-    .style("border-width", "1px")
-    .style("border-radius", "5px")
-    .style("padding", "10px")
 
+  var color = d3.scaleOrdinal()
+    .domain(["male", "female"])
+    .range([ "#440154ff", "#21908dff"])
 
-
-  var mouseover = function(d) {
-    tooltip
-      .style("opacity", 1)
-  }
-
-  var mousemove = function(d) {
-    tooltip
-      .html("The age <br> is: " + d.age)
-      .style("left", (d3.mouse(this)[0]+90) + "px")
-      .style("top", (d3.mouse(this)[1]) + "px")
-  }
-
-
-  var mouseleave = function(d) {
-    tooltip
-      .transition()
-      .duration(200)
+    var tooltip = d3.select("#my_dataviz")
+      .append("div")
       .style("opacity", 0)
-  }
+      .attr("class", "tooltip")
+      .style("background-color", "white")
+      .style("border", "solid")
+      .style("border-width", "1px")
+      .style("border-radius", "5px")
+      .style("padding", "10px")
+
+
+
+    var mouseover = function(d) {
+      tooltip
+        .style("opacity", 1)
+    }
+
+    var mousemove = function(d) {
+      tooltip
+        .html("The Income, Age, and Gender <br> are: " + "$" + d.fnlwgt + "," + " " + d.age + "," + " and " + d.gender)
+
+        .style("left", (d3.mouse(this)[0]+90) + "px")
+        .style("top", (d3.mouse(this)[1]) + "px")
+
+    }
+
+
+    var mouseleave = function(d) {
+      tooltip
+        .transition()
+        .duration(200)
+        .style("opacity", 0)
+    }
+
 
 
 
 
   svg.append('g')
     .selectAll("dot")
-    .data(data.filter(function(d,i){return i<130}))
+    .data(data)
+    .data(data.filter(function(d,i){return i<180}))
     .enter()
     .append("circle")
+      .attr("class", function (d) { return "dot " + d.gender } )
       .attr("cx", function (d) { return x(d.age); } )
       .attr("cy", function (d) { return y(d.fnlwgt); } )
-      .attr("r", 7)
-      .style("fill", "#69b3a2")
-      .style("opacity", 0.7)
-      .style("stroke", "blue")
-    .on("mouseover", mouseover )
-    .on("mousemove", mousemove )
-    .on("mouseleave", mouseleave )
+      .attr("r", 5)
+      .style("fill", function (d) { return color(d.gender) } )
+      .on("mouseover", mouseover )
+      .on("mousemove", mousemove )
+      .on("mouseleave", mouseleave )
+
+
 
 })
 
 
+svg.append("circle").attr("cx",320).attr("cy",130).attr("r", 6).style("fill", "#69b3a2")
+svg.append("circle").attr("cx",320).attr("cy",160).attr("r", 6).style("fill", "#404080")
+svg.append("text").attr("x", 330).attr("y", 130).text("female").style("font-size", "15px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", 330).attr("y", 160).text("male").style("font-size", "15px").attr("alignment-baseline","middle")
 
 
 </script>
-
